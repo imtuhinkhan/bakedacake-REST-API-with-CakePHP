@@ -26,6 +26,12 @@ class User extends Entity
      *
      * @var array
      */
+    protected function _setPassword(string $password) : ?string
+    {
+        if (strlen($password) > 0) {
+            return (new DefaultPasswordHasher())->hash($password);
+        }
+    }
     protected $_accessible = [
         'name' => true,
         'email' => true,

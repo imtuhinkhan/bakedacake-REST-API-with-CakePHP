@@ -16,8 +16,14 @@ class UsersController extends AppController
      *
      * @return \Cake\Http\Response|null|void Renders view
      */
+    public function beforeFilter(\Cake\Event\EventInterface $event)
+    {
+
+        parent::beforeFilter($event);
+    }
     public function index()
     {
+        // $this->Authorization->skipAuthorization();
         $users = $this->paginate($this->Users);
 
         $this->set(compact('users'));

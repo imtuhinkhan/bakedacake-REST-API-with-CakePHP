@@ -43,6 +43,7 @@ class AppController extends Controller
 
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
+        $this->loadComponent('Authorization.Authorization');
         $this->viewBuilder()->setOption('serialize', true);
         // $this->loadComponent('Auth', [
         //     'storage' => 'Memory',
