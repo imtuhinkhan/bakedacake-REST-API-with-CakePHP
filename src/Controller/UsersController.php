@@ -20,11 +20,15 @@ class UsersController extends AppController
     {
 
         parent::beforeFilter($event);
+        $this->Authentication->addUnauthenticatedActions(['login']);
     }
     public function index()
     {
-        // $this->Authorization->skipAuthorization();
+    
         $users = $this->paginate($this->Users);
+        $loggedInUserId = $this->request->getAttribute('identity')->id;
+        $user = $this->Users->get($loggedInUserId);
+        $this->Authorization->authorize($user, 'index');
 
         $this->set(compact('users'));
     }
@@ -41,6 +45,10 @@ class UsersController extends AppController
         $user = $this->Users->get($id, [
             'contain' => [],
         ]);
+
+        $loggedInUserId = $this->request->getAttribute('identity')->id;
+        $user = $this->Users->get($loggedInUserId);
+        $this->Authorization->authorize($user, 'view');
 
         $this->set(compact('user'));
     }
@@ -107,5 +115,26 @@ class UsersController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function login()
+    {
+        $this->Authorization->skipAuthorization();
+        $this->request->allowMethod(['get', 'post']);
+        $result = $this->Authentication->getResult();
+        // regardless of POST or GET, redirect if user is logged in
+        if ($result->isValid()) {
+            // redirect to /users after login success
+            $redirect = $this->request->getQuery('redirect', [
+                'controller' => 'Users',
+                'action' => 'index',
+            ]);
+
+            return $this->redirect($redirect);
+        }
+        // display error if user submitted and authentication failed
+        if ($this->request->is('post') && !$result->isValid()) {
+            $this->Flash->error(__('Invalid username or password'));
+        }
     }
 }
